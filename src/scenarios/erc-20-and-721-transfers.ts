@@ -31,3 +31,4 @@ export const streamingConfig: StreamConfig = {
   // eventSignature: 'Transfer(address indexed from, address indexed to, uint256 value)'
 };
 
+export const fetchedDataTypes = ['logs'];

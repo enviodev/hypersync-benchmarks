@@ -2,6 +2,7 @@ import { HypersyncClient, Decoder, TransactionField, LogField, BlockField, Trace
 import { performance, PerformanceObserver } from 'node:perf_hooks';
 import * as fs from 'fs';
 import * as path from 'path';
+import { countAllRowsRetrieved } from "./lib/count-parquet-rows";
 
 const BLOCK_RANGE = 100_000;
 
@@ -16,7 +17,19 @@ async function getCurrentHeight(): Promise<number> {
 }
 
 // Main benchmarking function
-async function benchmark(scenario: string, modification?: string) {
+async function benchmark(scenario: string) {
+  // Setup Performance Observer to log measures
+  let performanceResultString = '';
+  const obs = new PerformanceObserver((list) => {
+    list.getEntries().forEach((entry) => {
+      performanceResultString += `[Performance] ${entry.name}: ${entry.duration.toFixed(2)} ms\n`;
+    });
+    performance.clearMarks();
+    performance.clearMeasures();
+    obs.disconnect();
+  });
+  obs.observe({ entryTypes: ['measure'] });
+
   // Create HyperSync client
   const client = HypersyncClient.new();
 
@@ -25,10 +38,10 @@ async function benchmark(scenario: string, modification?: string) {
   const fromBlock = currentHeight - BLOCK_RANGE;
   const toBlock = currentHeight;
 
-  let createQuery, streamingConfig;
+  let createQuery, streamingConfig, fetchedDataTypes;
 
   try {
-    ({ createQuery, streamingConfig } = require(`./scenarios/${scenario}`));
+    ({ createQuery, streamingConfig, fetchedDataTypes } = require(`./scenarios/${scenario}`));
   } catch (error) {
     console.error(`Error loading scenario - make sure it exists '${scenario}':`, error);
     process.exit(1);
@@ -47,14 +60,19 @@ async function benchmark(scenario: string, modification?: string) {
   performance.measure('Benchmark Duration', 'fetch-start', 'fetch-end');
   const measures = performance.getEntriesByName('Benchmark Duration');
 
-  console.log(`Benchmarking scenario: ${scenario} ${modification ? `(${modification})` : ''} `);
-  // count number of rows in the parquet file for logs
-  // console.log(`Total items fetched: ${totalItems} MB`);
+  console.log(`Benchmarking scenario: ${scenario} `);
   console.log(`Time taken for data fetching: ${measures[0].duration.toFixed(2)} milliseconds`);
 
   // Clear performance entries
   performance.clearMarks();
   performance.clearMeasures();
+
+  let resultCounts = await countAllRowsRetrieved(parquetFolderName, fetchedDataTypes);
+  console.log(resultCounts);
+  console.log(performanceResultString);
+
+  // write the results to a file
+  fs.writeFileSync(`${parquetFolderName}/results.txt`, `${resultCounts}\n${performanceResultString}`);
 }
 
 // Entry point
@@ -76,20 +94,8 @@ async function main() {
   }
 
   const scenario = args[0];
-  const modification = args[1];
 
-  // Setup Performance Observer to log measures
-  const obs = new PerformanceObserver((list) => {
-    list.getEntries().forEach((entry) => {
-      console.log(`[Performance] ${entry.name}: ${entry.duration.toFixed(2)} ms`);
-    });
-    performance.clearMarks();
-    performance.clearMeasures();
-    obs.disconnect();
-  });
-  obs.observe({ entryTypes: ['measure'] });
-
-  await benchmark(scenario, modification);
+  await benchmark(scenario);
 }
 
 main().catch((error) => {

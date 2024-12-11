@@ -27,4 +27,6 @@ export const createQuery = (fromBlock: number, toBlock: number): Query => {
 export const streamingConfig: StreamConfig = {
   hexOutput: HexOutput.Prefixed,
   eventSignature: 'Transfer(address indexed from, address indexed to, uint256 value)'
-}; 
+};
+
+export const fetchedDataTypes = ['logs', 'decoded_logs'];

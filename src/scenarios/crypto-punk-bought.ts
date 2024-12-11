@@ -30,3 +30,5 @@ export const streamingConfig: StreamConfig = {
   hexOutput: HexOutput.Prefixed,
   eventSignature: "PunkBought(uint256 indexed punkIndex, uint256 value, address indexed fromAddress, address indexed toAddress)",
 };
+
+export const fetchedDataTypes = ['logs', 'decoded_logs'];

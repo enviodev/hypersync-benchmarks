@@ -116,4 +116,6 @@ export const createQuery = (fromBlock: number, toBlock: number): Query => {
 
 export const streamingConfig: StreamConfig = {
   hexOutput: HexOutput.Prefixed
-}; 
+};
+
+export const fetchedDataTypes = ['logs', 'transactions', 'traces', 'blocks'];

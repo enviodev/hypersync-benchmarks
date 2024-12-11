@@ -2,7 +2,7 @@
   "name": "data-fetch-benchmarks",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "benchmark.ts",
   "scripts": {
     "benchmark": "ts-node src/benchmark.ts"
   },
@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@dsnp/parquetjs": "^1.8.5",
     "@envio-dev/hypersync-client": "0.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"

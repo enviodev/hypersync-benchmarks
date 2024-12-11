@@ -36,3 +36,8 @@ Network latency plays a big factor in the speed of these tests. If you have a ba
 
 These benchmarks include the time it takes to decode your events and the time it takes to save all of the data into parquet files. We believe that this is fair - since in real world usage you would likely save the data to disk and want decoded events.
 
+HyperSync also excells at scanning larger ranges of blocks than just the last 100000 blocks - this is easy to configure by editing the `BLOCK_RANGE` variable in the `src/benchmark.ts` file.
+
+While these examples are written in Typescript, HyperSync libraries are also available in Python, Rust, and Golang. Additionally a json API is exposed - but is less efficient than the Apache Arrow Flight (binary) transport that is used in these clients.
+
+These benchmarks fetch more data than is typically needed for most indexing aplications - and the less columns you fetch the faster the benchmarks results will be.
