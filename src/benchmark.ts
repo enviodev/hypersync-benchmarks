@@ -1,7 +1,9 @@
-import { HypersyncClient, Decoder, TransactionField, LogField, BlockField, TraceField, Query, StreamConfig, presetQueryLogs, presetQueryBlocksAndTransactions, presetQueryBlocksAndTransactionHashes } from "@envio-dev/hypersync-client";
+import { HypersyncClient, Decoder, TransactionField, LogField, BlockField, TraceField, Query, StreamConfig, presetQueryLogs, presetQueryBlocksAndTransactions, presetQueryBlocksAndTransactionHashes, HexOutput } from "@envio-dev/hypersync-client";
 import { performance, PerformanceObserver } from 'node:perf_hooks';
 import * as fs from 'fs';
 import * as path from 'path';
+
+const BLOCK_RANGE = 100_000;
 
 // Helper function to get the current Ethereum height using fetch
 async function getCurrentHeight(): Promise<number> {
@@ -18,380 +20,37 @@ async function benchmark(scenario: string, modification?: string) {
   // Create HyperSync client
   const client = HypersyncClient.new();
 
-  // Get current Ethereum height
+  // Get current Ethereum height to calculate the block range
   const currentHeight = await getCurrentHeight();
-  const fromBlock = currentHeight - 100_000;
+  const fromBlock = currentHeight - BLOCK_RANGE;
   const toBlock = currentHeight;
 
-  // Define the query and streamConfig based on the scenario
-  let query: Query;
-  let streamConfig: StreamConfig = { reverse: false };
-  let decoder: Decoder | null = null;
-  let outputFilename: string | null = null;
+  let createQuery, streamingConfig;
 
-  switch (scenario.toLowerCase()) {
-    case 'all-logs':
-      query = {
-        fromBlock,
-        toBlock,
-        logs: [{}], // Empty log selection means all logs
-        fieldSelection: {
-          log: [
-            LogField.Removed,
-            LogField.LogIndex,
-            LogField.TransactionIndex,
-            LogField.TransactionHash,
-            LogField.BlockHash,
-            LogField.BlockNumber,
-            LogField.Address,
-            LogField.Data,
-            LogField.Topic0,
-            LogField.Topic1,
-            LogField.Topic2,
-            LogField.Topic3
-          ]
-        },
-      };
-      break;
-
-    case 'all-transactions':
-      query = {
-        fromBlock,
-        toBlock,
-        transactions: [{}], // Empty transaction selection means all transactions
-        fieldSelection: {
-          transaction: [
-            TransactionField.BlockHash,
-            TransactionField.BlockNumber,
-            TransactionField.From,
-            TransactionField.Gas,
-            TransactionField.GasPrice,
-            TransactionField.Hash,
-            TransactionField.Input,
-            TransactionField.Nonce,
-            TransactionField.To,
-            TransactionField.TransactionIndex,
-            TransactionField.Value,
-            TransactionField.V,
-            TransactionField.R,
-            TransactionField.S,
-            TransactionField.YParity,
-            TransactionField.MaxPriorityFeePerGas,
-            TransactionField.MaxFeePerGas,
-            TransactionField.ChainId,
-            TransactionField.AccessList,
-            TransactionField.MaxFeePerBlobGas,
-            TransactionField.BlobVersionedHashes,
-            TransactionField.CumulativeGasUsed,
-            TransactionField.EffectiveGasPrice,
-            TransactionField.GasUsed,
-            TransactionField.ContractAddress,
-            TransactionField.LogsBloom,
-            TransactionField.Kind,
-            TransactionField.Root,
-            TransactionField.Status,
-            TransactionField.L1Fee,
-            TransactionField.L1GasPrice,
-            TransactionField.L1GasUsed,
-            TransactionField.L1FeeScalar,
-            TransactionField.GasUsedForL1
-          ]
-        },
-      };
-      break;
-
-    case 'all-block-headers':
-      query = {
-        fromBlock,
-        toBlock,
-        blocks: [{}],
-        fieldSelection: {
-          block: [
-            BlockField.Number,
-            BlockField.Hash,
-            BlockField.ParentHash,
-            BlockField.Nonce,
-            BlockField.Sha3Uncles,
-            BlockField.LogsBloom,
-            BlockField.TransactionsRoot,
-            BlockField.StateRoot,
-            BlockField.ReceiptsRoot,
-            BlockField.Miner,
-            BlockField.Difficulty,
-            BlockField.TotalDifficulty,
-            BlockField.ExtraData,
-            BlockField.Size,
-            BlockField.GasLimit,
-            BlockField.GasUsed,
-            BlockField.Timestamp,
-            BlockField.Uncles,
-            BlockField.BaseFeePerGas,
-            BlockField.BlobGasUsed,
-            BlockField.ExcessBlobGas,
-            BlockField.ParentBeaconBlockRoot,
-            BlockField.WithdrawalsRoot,
-            BlockField.Withdrawals,
-            BlockField.L1BlockNumber,
-            BlockField.SendCount,
-            BlockField.SendRoot,
-            BlockField.MixHash
-          ]
-        },
-        includeAllBlocks: true,
-      };
-      break;
-
-    case 'all-traces':
-      query = {
-        fromBlock,
-        toBlock,
-        traces: [{}], // Empty trace selection means all traces
-        fieldSelection: {
-          trace: [
-            TraceField.From,
-            TraceField.To,
-            TraceField.CallType,
-            TraceField.Gas,
-            TraceField.Input,
-            TraceField.Init,
-            TraceField.Value,
-            TraceField.Author,
-            TraceField.RewardType,
-            TraceField.BlockHash,
-            TraceField.BlockNumber,
-            TraceField.Address,
-            TraceField.Code,
-            TraceField.GasUsed,
-            TraceField.Output,
-            TraceField.Subtraces,
-            TraceField.TraceAddress,
-            TraceField.TransactionHash,
-            TraceField.TransactionPosition,
-            TraceField.Kind,
-            TraceField.Error
-          ]
-        },
-      };
-      break;
-
-    case 'erc-20-transfers':
-      // The topic0 for ERC-20 Transfer event
-      const erc20TransferTopic = 'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a6a9c8fef15';
-      query = {
-        fromBlock,
-        toBlock,
-        logs: [{
-          topics: [[`0x${erc20TransferTopic}`]],
-        }],
-        fieldSelection: {
-          log: [
-            LogField.Removed,
-            LogField.LogIndex,
-            LogField.TransactionIndex,
-            LogField.TransactionHash,
-            LogField.BlockHash,
-            LogField.BlockNumber,
-            LogField.Address,
-            LogField.Data,
-            LogField.Topic0,
-            LogField.Topic1,
-            LogField.Topic2,
-            LogField.Topic3
-          ],
-          transaction: [TransactionField.Hash], // Include transaction hash
-        },
-      };
-      // Handle modifications
-      if (modification) {
-        if (modification.toLowerCase() === 'decoded') {
-          decoder = Decoder.fromSignatures(['Transfer(address,address,uint256)']);
-        } else if (modification.toLowerCase() === 'saved-to-parquet') {
-          outputFilename = path.join('output', `erc20_transfers_${fromBlock}_${toBlock}.parquet`);
-        }
-      }
-      break;
-
-    case 'erc-721-transfers':
-      // The topic0 for ERC-721 Transfer event
-      const erc721TransferTopic = 'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a6a9c8fef15';
-      query = {
-        fromBlock,
-        toBlock,
-        logs: [{
-          topics: [[`0x${erc721TransferTopic}`]],
-        }],
-        fieldSelection: {
-          log: [
-            LogField.Removed,
-            LogField.LogIndex,
-            LogField.TransactionIndex,
-            LogField.TransactionHash,
-            LogField.BlockHash,
-            LogField.BlockNumber,
-            LogField.Address,
-            LogField.Data,
-            LogField.Topic0,
-            LogField.Topic1,
-            LogField.Topic2,
-            LogField.Topic3
-
-          ],
-          transaction: [TransactionField.Hash], // Include transaction hash
-        },
-      };
-      // Handle modifications
-      if (modification) {
-        if (modification.toLowerCase() === 'decoded') {
-          decoder = Decoder.fromSignatures(['Transfer(address,address,uint256)']);
-        } else if (modification.toLowerCase() === 'saved-to-parquet') {
-          outputFilename = path.join('output', `erc721_transfers_${fromBlock}_${toBlock}.parquet`);
-        }
-      }
-      break;
-
-    case 'all-usdc-transfers':
-      // USDC contract address and Transfer event topic
-      const usdcContractAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
-      const transferTopic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-      query = {
-        fromBlock,
-        toBlock,
-        logs: [{
-          address: [usdcContractAddress],
-          topics: [[transferTopic]],
-        }],
-        fieldSelection: {
-          log: [
-            LogField.Removed,
-            LogField.LogIndex,
-            LogField.TransactionIndex,
-            LogField.TransactionHash,
-            LogField.BlockHash,
-            LogField.BlockNumber,
-            LogField.Address,
-            LogField.Data,
-            LogField.Topic0,
-            LogField.Topic1,
-            LogField.Topic2,
-            LogField.Topic3
-          ],
-          transaction: [TransactionField.Hash], // Include transaction hash
-        },
-      };
-      // Handle modifications
-      if (modification) {
-        if (modification.toLowerCase() === 'decoded') {
-          decoder = Decoder.fromSignatures(['Transfer(address,address,uint256)']);
-        } else if (modification.toLowerCase() === 'saved-to-parquet') {
-          outputFilename = path.join('output', `usdc_transfers_${fromBlock}_${toBlock}.parquet`);
-        }
-      }
-      break;
-
-    case 'everything':
-      query = {
-        fromBlock,
-        toBlock,
-        logs: [{}],
-        transactions: [{}],
-        traces: [{}],
-        blocks: [{}],
-        fieldSelection: {
-          log: [
-            LogField.Removed,
-            LogField.LogIndex,
-            LogField.TransactionIndex,
-            LogField.TransactionHash,
-            LogField.BlockHash,
-            LogField.BlockNumber,
-            LogField.Address,
-            LogField.Data,
-            LogField.Topic0,
-            LogField.Topic1,
-            LogField.Topic2,
-            LogField.Topic3
-          ],
-          transaction: [
-            TransactionField.BlockHash,
-            TransactionField.BlockNumber,
-            TransactionField.From,
-            TransactionField.Gas,
-            TransactionField.GasPrice,
-            TransactionField.Hash,
-            TransactionField.Input,
-            TransactionField.Nonce,
-            TransactionField.To,
-            TransactionField.TransactionIndex,
-            TransactionField.Value,
-          ],
-          block: [BlockField.Number, BlockField.Hash, BlockField.ParentHash, BlockField.Nonce, BlockField.Sha3Uncles, BlockField.LogsBloom, BlockField.TransactionsRoot, BlockField.StateRoot, BlockField.ReceiptsRoot, BlockField.Miner, BlockField.Difficulty, BlockField.TotalDifficulty, BlockField.ExtraData, BlockField.Size, BlockField.GasLimit, BlockField.GasUsed, BlockField.Timestamp, BlockField.Uncles, BlockField.BaseFeePerGas, BlockField.BlobGasUsed, BlockField.ExcessBlobGas, BlockField.ParentBeaconBlockRoot, BlockField.WithdrawalsRoot, BlockField.Withdrawals, BlockField.L1BlockNumber, BlockField.SendCount, BlockField.SendRoot, BlockField.MixHash],
-          trace: [TraceField.From, TraceField.To, TraceField.CallType, TraceField.Gas, TraceField.Input, TraceField.Init, TraceField.Value, TraceField.Author, TraceField.RewardType, TraceField.BlockHash, TraceField.BlockNumber, TraceField.Address, TraceField.Code, TraceField.GasUsed, TraceField.Output, TraceField.Subtraces, TraceField.TraceAddress, TraceField.TransactionHash, TraceField.TransactionPosition, TraceField.Kind, TraceField.Error]
-        },
-        includeAllBlocks: true,
-      };
-      break;
-
-    default:
-      console.error(`Unknown scenario: ${scenario}`);
-      process.exit(1);
+  try {
+    ({ createQuery, streamingConfig } = require(`./scenarios/${scenario}`));
+  } catch (error) {
+    console.error(`Error loading scenario - make sure it exists '${scenario}':`, error);
+    process.exit(1);
   }
+
+  const parquetFolderName = `results/${scenario}/${fromBlock}-${toBlock}`;
 
   // Start performance measurement
   performance.mark('fetch-start');
 
   // Fetch data using streaming
-  const receiver = await client.stream(query, streamConfig);
-
-  let totalItems = 0;
-  const allData: any[] = [];
-
-  while (true) {
-    const res = await receiver.recv();
-    if (res === null) {
-      break; // No more data
-    }
-
-    // Handle data based on scenario
-    if (res.data.logs && res.data.logs.length > 0) {
-      totalItems += res.data.logs.length;
-
-      // Decode logs if decoder is provided
-      if (decoder) {
-        const decodedLogs = decoder.decodeLogsSync(res.data.logs);
-        // You can process or output the decoded logs here
-      }
-
-      // Save to data array if we need to write to Parquet later
-      if (outputFilename) {
-        allData.push(...res.data.logs);
-      }
-    }
-    if (res.data.transactions && res.data.transactions.length > 0) {
-      totalItems += res.data.transactions.length;
-    }
-    if (res.data.blocks && res.data.blocks.length > 0) {
-      totalItems += res.data.blocks.length;
-    }
-    if (res.data.traces && res.data.traces.length > 0) {
-      totalItems += res.data.traces.length;
-    }
-  }
+  const receiver = await client.collectParquet(parquetFolderName, createQuery(fromBlock, toBlock), streamingConfig);
 
   // End performance measurement
   performance.mark('fetch-end');
   performance.measure('Benchmark Duration', 'fetch-start', 'fetch-end');
   const measures = performance.getEntriesByName('Benchmark Duration');
 
-  console.log(`Benchmarking scenario: ${scenario} ${modification ? `(${modification})` : ''}`);
-  console.log(`Total items fetched: ${totalItems}`);
+  console.log(`Benchmarking scenario: ${scenario} ${modification ? `(${modification})` : ''} `);
+  // count number of rows in the parquet file for logs
+  // console.log(`Total items fetched: ${totalItems} MB`);
   console.log(`Time taken for data fetching: ${measures[0].duration.toFixed(2)} milliseconds`);
-
-  // Save to Parquet if needed
-  if (outputFilename) {
-    // Ensure output directory exists
-    fs.mkdirSync(path.dirname(outputFilename), { recursive: true });
-    console.log(`Data saved to Parquet file: ${outputFilename}`);
-  }
 
   // Clear performance entries
   performance.clearMarks();
@@ -404,13 +63,14 @@ async function main() {
   if (args.length === 0) {
     console.error('Usage: ts-node src/benchmark.ts <scenario> [modification]');
     console.error('Available scenarios:');
+    console.error('  - all-blocks-data');
     console.error('  - all-logs');
     console.error('  - all-transactions');
-    console.error('  - all-block-headers');
-    console.error('  - erc-20-transfers');
-    console.error('  - erc-721-transfers');
-    console.error('  - all-usdc-transfers');
     console.error('  - all-traces');
+    console.error('  - all-ens-name-registerred');
+    console.error('  - crypto-punks-bought');
+    console.error('  - erc-20-and-721-transfers');
+    console.error('  - all-usdc-transfers');
     console.error('  - everything');
     process.exit(1);
   }
