@@ -1,4 +1,5 @@
 import { HexOutput, LogField, Decoder, Query, StreamConfig } from "@envio-dev/hypersync-client";
+import { SAVE_DATA_AS_PARQUET } from "../config";
 
 export const createQuery = (fromBlock: number, toBlock: number): Query => {
   const usdcContractAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
@@ -26,7 +27,7 @@ export const createQuery = (fromBlock: number, toBlock: number): Query => {
 
 export const streamingConfig: StreamConfig = {
   hexOutput: HexOutput.Prefixed,
-  eventSignature: 'Transfer(address indexed from, address indexed to, uint256 value)'
+  eventSignature: SAVE_DATA_AS_PARQUET ? 'Transfer(address indexed from, address indexed to, uint256 value)' : undefined,
 };
 
-export const fetchedDataTypes = ['logs', 'decoded_logs'];
+export const fetchedDataTypes = SAVE_DATA_AS_PARQUET ? ['logs', 'decoded_logs'] : ['logs'];

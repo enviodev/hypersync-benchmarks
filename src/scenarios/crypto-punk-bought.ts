@@ -1,4 +1,5 @@
 import { HexOutput, LogField, Query, StreamConfig } from "@envio-dev/hypersync-client";
+import { SAVE_DATA_AS_PARQUET } from "../config";
 
 export const createQuery = (fromBlock: number, toBlock: number): Query => {
   return {
@@ -28,7 +29,7 @@ export const createQuery = (fromBlock: number, toBlock: number): Query => {
 
 export const streamingConfig: StreamConfig = {
   hexOutput: HexOutput.Prefixed,
-  eventSignature: "PunkBought(uint256 indexed punkIndex, uint256 value, address indexed fromAddress, address indexed toAddress)",
+  eventSignature: SAVE_DATA_AS_PARQUET ? "PunkBought(uint256 indexed punkIndex, uint256 value, address indexed fromAddress, address indexed toAddress)" : undefined,
 };
 
-export const fetchedDataTypes = ['logs', 'decoded_logs'];
+export const fetchedDataTypes = SAVE_DATA_AS_PARQUET ? ['logs', 'decoded_logs'] : ['logs'];

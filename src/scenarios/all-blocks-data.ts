@@ -1,5 +1,4 @@
 import { BlockField, HexOutput, Query, StreamConfig } from "@envio-dev/hypersync-client";
-import { ParquetReader } from 'parquetjs';
 
 export const createQuery = (fromBlock: number, toBlock: number): Query => {
   return {

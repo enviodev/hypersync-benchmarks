@@ -41,3 +41,12 @@ HyperSync also excells at scanning larger ranges of blocks than just the last 10
 While these examples are written in Typescript, HyperSync libraries are also available in Python, Rust, and Golang. Additionally a json API is exposed - but is less efficient than the Apache Arrow Flight (binary) transport that is used in these clients.
 
 These benchmarks fetch more data than is typically needed for most indexing aplications - and the less columns you fetch the faster the benchmarks results will be.
+
+Our system doesn't do any caching of the data since the variety of query types is so broad - it didn't make sense to implement a caching. So there is no such thing as a 'cold' vs 'hot' run in this benchmark.
+
+## Config
+
+You can change the config in the `src/config.ts` file.
+
+- `SAVE_DATA_AS_PARQUET` - default is true. If false, the data will be streamed in batches. This in nice for seeing real-time progress. Saving to parquet has slight overhead.
+- `BLOCK_RANGE` - the number of blocks from the current block that will be scanned.
