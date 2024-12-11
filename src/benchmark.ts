@@ -13,19 +13,10 @@ async function getCurrentHeight(): Promise<number> {
   return data.height;
 }
 
-// Helper function to write data to Parquet (placeholder implementation)
-async function saveToParquet(filename: string, data: any): Promise<void> {
-  // Placeholder: Implement actual Parquet saving logic here
-  fs.writeFileSync(filename, JSON.stringify(data, null, 2));
-}
-
 // Main benchmarking function
 async function benchmark(scenario: string, modification?: string) {
   // Create HyperSync client
   const client = HypersyncClient.new();
-
-  // Performance marks for benchmarking
-  performance.mark('benchmark-start');
 
   // Get current Ethereum height
   const currentHeight = await getCurrentHeight();
@@ -261,13 +252,13 @@ async function benchmark(scenario: string, modification?: string) {
     case 'all-usdc-transfers':
       // USDC contract address and Transfer event topic
       const usdcContractAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
-      const transferTopic = 'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a6a9c8fef15';
+      const transferTopic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
       query = {
         fromBlock,
         toBlock,
         logs: [{
           address: [usdcContractAddress],
-          topics: [[`0x${transferTopic}`]],
+          topics: [[transferTopic]],
         }],
         fieldSelection: {
           log: [
@@ -391,21 +382,14 @@ async function benchmark(scenario: string, modification?: string) {
   performance.measure('Benchmark Duration', 'fetch-start', 'fetch-end');
   const measures = performance.getEntriesByName('Benchmark Duration');
 
-  performance.mark('benchmark-end');
-  performance.measure('Total Benchmark Time', 'benchmark-start', 'benchmark-end');
-
   console.log(`Benchmarking scenario: ${scenario} ${modification ? `(${modification})` : ''}`);
   console.log(`Total items fetched: ${totalItems}`);
   console.log(`Time taken for data fetching: ${measures[0].duration.toFixed(2)} milliseconds`);
-
-  const totalMeasures = performance.getEntriesByName('Total Benchmark Time');
-  console.log(`Total benchmarking time: ${totalMeasures[0].duration.toFixed(2)} milliseconds`);
 
   // Save to Parquet if needed
   if (outputFilename) {
     // Ensure output directory exists
     fs.mkdirSync(path.dirname(outputFilename), { recursive: true });
-    await saveToParquet(outputFilename, allData);
     console.log(`Data saved to Parquet file: ${outputFilename}`);
   }
 
