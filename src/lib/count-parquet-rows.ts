@@ -11,11 +11,11 @@ async function countRowsInParquetFile(filePath: string): Promise<number> {
 const countRowsRetrieved = async (dirPath: string, type: string) => {
   const parquetFilePath = path.join(dirPath, `${type}.parquet`);
   const totalRows = await countRowsInParquetFile(parquetFilePath);
-  return `Total ${type} fetched: ${totalRows}`;
+  return { type, totalRows };
 }
 
 export const countAllRowsRetrieved = async (dirPath: string, types: string[]) => {
   const results = await Promise.all(types.map(type => countRowsRetrieved(dirPath, type)));
-  return results.join('\n');
+  return results;
 }
 

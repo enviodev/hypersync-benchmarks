@@ -1,12 +1,12 @@
 import { HexOutput, LogField, Decoder, Query, StreamConfig } from "@envio-dev/hypersync-client";
 
 export const createQuery = (fromBlock: number, toBlock: number): Query => {
-  const erc20TransferTopic = 'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a6a9c8fef15';
+  const erc20TransferTopic = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
   return {
     fromBlock,
     toBlock,
     logs: [{
-      topics: [[`0x${erc20TransferTopic}`]],
+      topics: [[erc20TransferTopic]],
     }],
     fieldSelection: {
       log: [

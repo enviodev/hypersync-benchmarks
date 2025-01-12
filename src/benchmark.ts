@@ -5,10 +5,6 @@ import * as path from 'path';
 import { countAllRowsRetrieved } from "./lib/count-parquet-rows";
 import { BLOCK_RANGE, SAVE_DATA_AS_PARQUET } from "./config";
 
-type QueryResponseData = {
-  [key: string]: any[]; // Adjust this type based on the actual structure
-};
-
 // Helper function to get the current Ethereum height using fetch
 async function getCurrentHeight(): Promise<number> {
   const response = await fetch('https://eth.hypersync.xyz/height');
@@ -20,7 +16,10 @@ async function getCurrentHeight(): Promise<number> {
 }
 
 // Main benchmarking function
-async function benchmark(scenario: string) {
+async function benchmark(
+  scenario: string,
+  options: { saveJson?: boolean; folderSuffix?: string } = {}
+) {
   // Create HyperSync client
   const client = HypersyncClient.new();
 
@@ -38,7 +37,11 @@ async function benchmark(scenario: string) {
     process.exit(1);
   }
 
-  const parquetFolderName = `results/${scenario}/${fromBlock}-${toBlock}`;
+  // Build the target folder name. If a suffix is provided, use it.
+  let parquetFolderName = `results/${scenario}/${fromBlock}-${toBlock}`;
+  if (options.folderSuffix) {
+    parquetFolderName += `-${options.folderSuffix}`;
+  }
 
   console.log(`Benchmarking scenario: ${scenario}`);
   console.log(`Fetching data from block ${fromBlock} to block ${toBlock}`);
@@ -49,7 +52,7 @@ async function benchmark(scenario: string) {
   // Fetch data
   let totalItemsOfType: { [key: string]: number } = {};
   if (SAVE_DATA_AS_PARQUET) {
-    // show a dot every 5 seconds to indicate progress
+    // show a dot every 2 seconds to indicate progress
     const intervalId = setInterval(() => {
       process.stdout.write('.');
     }, 2000);
@@ -62,7 +65,6 @@ async function benchmark(scenario: string) {
     const receiver = await client.stream(createQuery(fromBlock, toBlock), streamingConfig);
 
     let totalItems = 0;
-    const allData: any[] = [];
 
     while (true) {
       const res = await receiver.recv();
@@ -87,31 +89,50 @@ async function benchmark(scenario: string) {
   performance.measure('Benchmark Duration', 'fetch-start', 'fetch-end');
   const measures = performance.getEntriesByName('Benchmark Duration');
 
-  let performanceResultString = `Time taken for data fetching: ${measures[0].duration.toFixed(2)} milliseconds`;
+  let performanceResult = measures[0].duration;
 
-  let resultCounts = "";
+  let resultCounts = [];
   if (SAVE_DATA_AS_PARQUET) {
     resultCounts = await countAllRowsRetrieved(parquetFolderName, fetchedDataTypes);
   } else {
     for (const type of fetchedDataTypes) {
-      resultCounts += `[${type}] ${totalItemsOfType[type]}\n`;
+      resultCounts.push({ type, totalRows: totalItemsOfType[type] });
     }
   }
 
   console.log("---------------------------\nFetching complete. Results:");
-  console.log(resultCounts);
-  console.log(performanceResultString);
+  let resultString = `${resultCounts.map(result => `Total ${result.type} fetched: ${result.totalRows}`).join('\n')}\nTime taken for data fetching: ${performanceResult.toFixed(2)} milliseconds, (which is seconds: ${(performanceResult / 1000).toFixed(2)})\nBlock Range: ${fromBlock}→${toBlock}`;
+  console.log(resultString);
 
   // write the results to a file
   fs.mkdirSync(parquetFolderName, { recursive: true });
-  fs.writeFileSync(`${parquetFolderName}/results.txt`, `${resultCounts}\n${performanceResultString}`);
+
+  // If --save-json was passed in, we save as JSON, otherwise .txt
+  if (options.saveJson) {
+    const resultObj = {
+      resultCounts,
+      performanceResult,
+      fromBlock,
+      toBlock
+    };
+    fs.writeFileSync(
+      `${parquetFolderName}/results.json`,
+      JSON.stringify(resultObj, null, 2)
+    );
+  } else {
+    fs.writeFileSync(
+      `${parquetFolderName}/results.txt`,
+      resultString
+    );
+  }
 }
 
 // Entry point
 async function main() {
   const args = process.argv.slice(2);
+
   if (args.length === 0) {
-    console.error('Usage: ts-node src/benchmark.ts <scenario> [modification]');
+    console.error('Usage: ts-node src/benchmark.ts <scenario> [--save-json] [--folder-suffix <suffix>]');
     console.error('Available scenarios:');
     console.error('  - all-blocks-data');
     console.error('  - all-logs');
@@ -126,8 +147,23 @@ async function main() {
   }
 
   const scenario = args[0];
+  let saveJson = false;
+  let folderSuffix = '';
 
-  await benchmark(scenario);
+  // Minimal argument parsing
+  for (let i = 1; i < args.length; i++) {
+    if (args[i] === '--save-json') {
+      saveJson = true;
+    } else if (args[i] === '--folder-suffix') {
+      // Make sure we have another arg for the suffix
+      if (i + 1 < args.length) {
+        folderSuffix = args[i + 1];
+        i++;
+      }
+    }
+  }
+
+  await benchmark(scenario, { saveJson, folderSuffix });
 }
 
 main().catch((error) => {

@@ -4,7 +4,9 @@
   "description": "",
   "main": "benchmark.ts",
   "scripts": {
-    "benchmark": "ts-node src/benchmark.ts"
+    "benchmark": "ts-node src/benchmark.ts",
+    "multi-runner": "ts-node scripts/multi-runner.ts",
+    "format-aggregate-results": "ts-node scripts/format-aggregate-results.ts"
   },
   "keywords": [],
   "author": "",

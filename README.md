@@ -26,6 +26,8 @@ pnpm benchmark <scenario>
 
 The results will be saved in the 'results' folder with the schenario that was run - the raw data (in parquet format) that was fetched, and the benchmark results in a text file.
 
+You can use a parquet viewer such as a plugin for VSCode like [Parquet Explorer](https://marketplace.visualstudio.com/items?itemName=AdamViola.parquet-explorer) to view the parquet files.
+
 ## Notes
 
 While HyperSync excels at fetching all the data and returning it where it really shines is filterring the data.
