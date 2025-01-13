@@ -1,0 +1,461 @@
+{
+  "all-blocks-data": {
+    "runs": [
+      {
+        "fromBlock": 21510808,
+        "toBlock": 21610808,
+        "resultCounts": [
+          {
+            "type": "blocks",
+            "totalRows": 100000
+          }
+        ],
+        "performanceResult": 1740.228852
+      },
+      {
+        "fromBlock": 21510808,
+        "toBlock": 21610808,
+        "resultCounts": [
+          {
+            "type": "blocks",
+            "totalRows": 100000
+          }
+        ],
+        "performanceResult": 1467.4749219999999
+      },
+      {
+        "fromBlock": 21510809,
+        "toBlock": 21610809,
+        "resultCounts": [
+          {
+            "type": "blocks",
+            "totalRows": 100000
+          }
+        ],
+        "performanceResult": 1562.4091529999998
+      }
+    ],
+    "stats": {
+      "min": 1467.4749219999999,
+      "max": 1740.228852,
+      "average": 1590.037642333333,
+      "median": 1562.4091529999998
+    }
+  },
+  "all-logs": {
+    "runs": [
+      {
+        "fromBlock": 21510809,
+        "toBlock": 21610809,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 43790805
+          }
+        ],
+        "performanceResult": 25053.974066000002
+      },
+      {
+        "fromBlock": 21510811,
+        "toBlock": 21610811,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 43791266
+          }
+        ],
+        "performanceResult": 24919.599897
+      },
+      {
+        "fromBlock": 21510814,
+        "toBlock": 21610814,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 43790655
+          }
+        ],
+        "performanceResult": 25425.619856
+      }
+    ],
+    "stats": {
+      "min": 24919.599897,
+      "max": 25425.619856,
+      "average": 25133.064606333337,
+      "median": 25053.974066000002
+    }
+  },
+  "all-transactions": {
+    "runs": [
+      {
+        "fromBlock": 21510816,
+        "toBlock": 21610816,
+        "resultCounts": [
+          {
+            "type": "transactions",
+            "totalRows": 16366221
+          }
+        ],
+        "performanceResult": 44996.14931
+      },
+      {
+        "fromBlock": 21510820,
+        "toBlock": 21610820,
+        "resultCounts": [
+          {
+            "type": "transactions",
+            "totalRows": 16366069
+          }
+        ],
+        "performanceResult": 45881.982412
+      },
+      {
+        "fromBlock": 21510824,
+        "toBlock": 21610824,
+        "resultCounts": [
+          {
+            "type": "transactions",
+            "totalRows": 16366041
+          }
+        ],
+        "performanceResult": 44269.249287
+      }
+    ],
+    "stats": {
+      "min": 44269.249287,
+      "max": 45881.982412,
+      "average": 45049.127003,
+      "median": 44996.14931
+    }
+  },
+  "all-traces": {
+    "runs": [
+      {
+        "fromBlock": 21510828,
+        "toBlock": 21610828,
+        "resultCounts": [
+          {
+            "type": "traces",
+            "totalRows": 98644707
+          }
+        ],
+        "performanceResult": 78232.330261
+      },
+      {
+        "fromBlock": 21510835,
+        "toBlock": 21610835,
+        "resultCounts": [
+          {
+            "type": "traces",
+            "totalRows": 98643972
+          }
+        ],
+        "performanceResult": 76128.605698
+      },
+      {
+        "fromBlock": 21510842,
+        "toBlock": 21610842,
+        "resultCounts": [
+          {
+            "type": "traces",
+            "totalRows": 98643796
+          }
+        ],
+        "performanceResult": 75857.964737
+      }
+    ],
+    "stats": {
+      "min": 75857.964737,
+      "max": 78232.330261,
+      "average": 76739.63356533334,
+      "median": 76128.605698
+    }
+  },
+  "all-ens-name-registerred": {
+    "runs": [
+      {
+        "fromBlock": 21510848,
+        "toBlock": 21610848,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 8949
+          },
+          {
+            "type": "decoded_logs",
+            "totalRows": 8949
+          }
+        ],
+        "performanceResult": 4663.629754
+      },
+      {
+        "fromBlock": 21510849,
+        "toBlock": 21610849,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 8949
+          },
+          {
+            "type": "decoded_logs",
+            "totalRows": 8949
+          }
+        ],
+        "performanceResult": 4599.067883000001
+      },
+      {
+        "fromBlock": 21510849,
+        "toBlock": 21610849,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 8949
+          },
+          {
+            "type": "decoded_logs",
+            "totalRows": 8949
+          }
+        ],
+        "performanceResult": 3873.0431910000007
+      }
+    ],
+    "stats": {
+      "min": 3873.0431910000007,
+      "max": 4663.629754,
+      "average": 4378.580276000001,
+      "median": 4599.067883000001
+    }
+  },
+  "crypto-punk-bought": {
+    "runs": [
+      {
+        "fromBlock": 21510850,
+        "toBlock": 21610850,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 58
+          },
+          {
+            "type": "decoded_logs",
+            "totalRows": 58
+          }
+        ],
+        "performanceResult": 180.149942
+      },
+      {
+        "fromBlock": 21510850,
+        "toBlock": 21610850,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 58
+          },
+          {
+            "type": "decoded_logs",
+            "totalRows": 58
+          }
+        ],
+        "performanceResult": 178.2145999999998
+      },
+      {
+        "fromBlock": 21510850,
+        "toBlock": 21610850,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 58
+          },
+          {
+            "type": "decoded_logs",
+            "totalRows": 58
+          }
+        ],
+        "performanceResult": 182.09359000000018
+      }
+    ],
+    "stats": {
+      "min": 178.2145999999998,
+      "max": 182.09359000000018,
+      "average": 180.15271066666665,
+      "median": 180.149942
+    }
+  },
+  "erc-20-and-721-transfers": {
+    "runs": [
+      {
+        "fromBlock": 21510850,
+        "toBlock": 21610850,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 22599721
+          }
+        ],
+        "performanceResult": 12189.070682
+      },
+      {
+        "fromBlock": 21510852,
+        "toBlock": 21610852,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 22600028
+          }
+        ],
+        "performanceResult": 12397.315902999999
+      },
+      {
+        "fromBlock": 21510853,
+        "toBlock": 21610853,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 22600169
+          }
+        ],
+        "performanceResult": 12354.153738
+      }
+    ],
+    "stats": {
+      "min": 12189.070682,
+      "max": 12397.315902999999,
+      "average": 12313.513441000001,
+      "median": 12354.153738
+    }
+  },
+  "all-usdc-transfers": {
+    "runs": [
+      {
+        "fromBlock": 21510854,
+        "toBlock": 21610854,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 1695478
+          },
+          {
+            "type": "decoded_logs",
+            "totalRows": 1695478
+          }
+        ],
+        "performanceResult": 2460.5380940000005
+      },
+      {
+        "fromBlock": 21510854,
+        "toBlock": 21610854,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 1695478
+          },
+          {
+            "type": "decoded_logs",
+            "totalRows": 1695478
+          }
+        ],
+        "performanceResult": 2486.8566140000003
+      },
+      {
+        "fromBlock": 21510855,
+        "toBlock": 21610855,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 1695468
+          },
+          {
+            "type": "decoded_logs",
+            "totalRows": 1695468
+          }
+        ],
+        "performanceResult": 2591.5100519999996
+      }
+    ],
+    "stats": {
+      "min": 2460.5380940000005,
+      "max": 2591.5100519999996,
+      "average": 2512.9682533333335,
+      "median": 2486.8566140000003
+    }
+  },
+  "everything": {
+    "runs": [
+      {
+        "fromBlock": 21510855,
+        "toBlock": 21610855,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 43790056
+          },
+          {
+            "type": "transactions",
+            "totalRows": 16365386
+          },
+          {
+            "type": "traces",
+            "totalRows": 98642841
+          },
+          {
+            "type": "blocks",
+            "totalRows": 100000
+          }
+        ],
+        "performanceResult": 136896.808733
+      },
+      {
+        "fromBlock": 21510866,
+        "toBlock": 21610866,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 43790292
+          },
+          {
+            "type": "transactions",
+            "totalRows": 16365227
+          },
+          {
+            "type": "traces",
+            "totalRows": 98643373
+          },
+          {
+            "type": "blocks",
+            "totalRows": 100000
+          }
+        ],
+        "performanceResult": 138111.89181899998
+      },
+      {
+        "fromBlock": 21510878,
+        "toBlock": 21610878,
+        "resultCounts": [
+          {
+            "type": "logs",
+            "totalRows": 43790585
+          },
+          {
+            "type": "transactions",
+            "totalRows": 16364988
+          },
+          {
+            "type": "traces",
+            "totalRows": 98643017
+          },
+          {
+            "type": "blocks",
+            "totalRows": 100000
+          }
+        ],
+        "performanceResult": 137369.38702700002
+      }
+    ],
+    "stats": {
+      "min": 136896.808733,
+      "max": 138111.89181899998,
+      "average": 137459.36252633334,
+      "median": 137369.38702700002
+    }
+  }
+}
